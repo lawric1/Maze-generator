@@ -22,32 +22,32 @@ def removeWall(currentCell, direction):
 
 def drawCell(im, cell, color):
     x, y = cell[0], cell[1]
-    im.putpixel((x,y), ImageColor.getcolor(color, '1'))
+    im.putpixel((x,y), color)
     im.save('maze.png')
 
+
 def generateMaze(WIDTH, HEIGHT):
-    directions = [[0, -1], [0, 1], [1, 0], [-1, 0]]
+    directionList = [[0, -1], [0, 1], [1, 0], [-1, 0]]
 
     startCell = [1, 1]
-    visitedCells = []
-    track = []
-
     currentCell = startCell
+
+    visitedCells = []
     visitedCells.append(currentCell)
-    track.append(currentCell)
 
-    im = Image.new('1', (WIDTH, HEIGHT))
-    # maze = generateMaze(WIDTH, HEIGHT)
-
+    WHITE, BLACK, BLUE = (255, 255, 255), (0, 0, 0), (0, 0, 255)
+    
+    im = Image.new('RGB', (WIDTH, HEIGHT))
     for x in range(WIDTH):
         for y in range(HEIGHT):
-            im.putpixel((x,y), ImageColor.getcolor('black', '1'))
+            im.putpixel((x,y), BLACK)
 
-    drawCell(im, currentCell, 'white')
+    drawCell(im, currentCell, WHITE)
+
 
     for i in range(5000000):
-        nextDirection = random.choice(directions)
-        nextCell = getNextCell(currentCell, nextDirection)
+        direction = random.choice(directionList)
+        nextCell = getNextCell(currentCell, direction)
 
         if nextCell[0] <= 0 or nextCell[0] >= WIDTH:
             continue
@@ -55,50 +55,49 @@ def generateMaze(WIDTH, HEIGHT):
             continue
 
         if not nextCell in visitedCells:
-            wall = removeWall(currentCell, nextDirection)
-            visitedCells.append(wall)
-            track.append(wall)
-
+            wall = removeWall(currentCell, direction)
             currentCell = nextCell
+            visitedCells.append(wall)
             visitedCells.append(currentCell)
-            track.append(currentCell)
 
-            directions = [[0, -1], [0, 1], [1, 0], [-1, 0]]
+            directionList = [[0, -1], [0, 1], [1, 0], [-1, 0]]
+            
+
+            time.sleep(0.2)
+            drawCell(im, wall, WHITE)
             
             time.sleep(0.2)
-            drawCell(im, wall, 'white')
-            
-            time.sleep(0.2)
-            drawCell(im, currentCell, 'white')
+            drawCell(im, currentCell, WHITE)
 
             continue
 
-        directions.remove(nextDirection)
-    
-        if not directions:
-            currentCell = track[-3]
-            track.pop()
-            track.pop()
 
-            directions = [[0, -1], [0, 1], [1, 0], [-1, 0]]
+        directionList.remove(direction)    
+        if not directionList:
+            drawCell(im, currentCell, BLUE)
+
+            index = visitedCells.index(currentCell) - 2
+            currentCell = visitedCells[index]
+            
+            drawCell(im, visitedCells[index - 1], BLUE)
+            drawCell(im, currentCell, BLUE)
+
+            directionList = [[0, -1], [0, 1], [1, 0], [-1, 0]]
         
-        # if len(track) == 0:
-        #     break
-
     # return visitedCells
 
-# im = Image.new('1', (WIDTH, HEIGHT)) # create the Image of size 1 pixel
+generateMaze(WIDTH, HEIGHT)
+
+
+# im = Image.new('1', (WIDTH, HEIGHT))
 # maze = generateMaze(WIDTH, HEIGHT)
 
 #     for x in range(WIDTH):
 #         for y in range(HEIGHT):
-#             im.putpixel((x,y), ImageColor.getcolor('black', '1')) # or whatever color you wish
+#             im.putpixel((x,y), ImageColor.getcolor('black', '1'))
 
 # for cell in maze:
 #     x, y = cell[0], cell[1]
-#     im.putpixel((x,y), ImageColor.getcolor('white', '1')) # or whatever color you wish
+#     im.putpixel((x,y), ImageColor.getcolor('white', '1'))
 
 # im.save('maze.png') # or any image format
-
-generateMaze(WIDTH, HEIGHT)
-
