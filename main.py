@@ -16,19 +16,19 @@ def multiply(direction, n):
 
 
 def getNextCell(cell, direction):
+    wall = list(map(add, cell, direction))
+
     direction = multiply(direction, 2)
-    return list(map(add, cell, direction))
+    nextCell = list(map(add, cell, direction))
 
-
-def getWall(cell, direction):
-    return list(map(add, cell, direction))
+    return wall, nextCell
 
 
 def getPossibleDirections(cell, visitedCells):
     possibleDirections = []
 
     for direction in DIRECTIONS:
-        nextCell = getNextCell(cell, direction)
+        wall, nextCell = getNextCell(cell, direction)
 
         # Check if cell is within maze bounds
         if nextCell[0] <= 0 or nextCell[0] >= WIDTH -1:
@@ -41,6 +41,7 @@ def getPossibleDirections(cell, visitedCells):
 
     return possibleDirections
 
+
 def createImage(color):
     image = Image.new('RGB', (WIDTH, HEIGHT))
     for x in range(WIDTH):
@@ -49,15 +50,19 @@ def createImage(color):
     
     return image
 
+
 def drawCell(image, cell, color):
     x, y = cell[0], cell[1]
     image.putpixel((x,y), color)
     image.save('maze.png')
 
+    
+
 def generateMaze():
     startCell = [1, 1]
     currentCell = startCell
 
+    stack = []
     visitedCells = []
     visitedCells.append(currentCell)
 
@@ -71,10 +76,11 @@ def generateMaze():
 
         while possibleDirections:
             direction = random.choice(possibleDirections)
-            nextCell = getNextCell(currentCell, direction)
+            wall, nextCell = getNextCell(currentCell, direction)
 
             if not nextCell in visitedCells:
-                wall = getWall(currentCell, direction)
+                stack.append(currentCell)
+
                 currentCell = nextCell
                 visitedCells.append(wall)
                 visitedCells.append(currentCell)
@@ -89,15 +95,7 @@ def generateMaze():
             break
         
         if not possibleDirections:
-            index = visitedCells.index(currentCell) - 2 # index of previous cell for backtracking
-            currentCell = visitedCells[index]
-
-
-            # time.sleep(0.05)
-            # drawCell(mazeImage, visitedCells[index + 1], BLUE)
-
-            # time.sleep(0.05)
-            # drawCell(mazeImage, currentCell, BLUE)
+            currentCell = stack.pop() # Get previous cell from stack for backtracking
 
         if currentCell == visitedCells[0]:
             break
