@@ -2,33 +2,57 @@ import time
 import random
 from operator import add
 
-from PIL import Image, ImageColor
+from PIL import Image
 
 
 WIDTH, HEIGHT = 15,15
+DIRECTIONS = [[0, -1], [0, 1], [1, 0], [-1, 0]]
+
 
 def multiply(direction, n):
     return [value * n for value in direction]
 
 
-def getNextCell(currentCell, direction):
+def getNextCell(cell, direction):
     direction = multiply(direction, 2)
-    return list(map(add, currentCell, direction))
+    return list(map(add, cell, direction))
 
 
-def removeWall(currentCell, direction):
-    return list(map(add, currentCell, direction))
+def getWall(cell, direction):
+    return list(map(add, cell, direction))
 
 
-def drawCell(im, cell, color):
+def getPossibleDirections(cell, visitedCells):
+    possibleDirections = []
+
+    for direction in DIRECTIONS:
+        nextCell = getNextCell(cell, direction)
+
+        # Check if cell is within maze bounds
+        if nextCell[0] <= 0 or nextCell[0] >= WIDTH -1:
+            continue
+        if nextCell[1] <= 0 or nextCell[1] >= HEIGHT -1:
+            continue
+
+        if not nextCell in visitedCells:
+            possibleDirections.append(direction)
+
+    return possibleDirections
+
+def createImage(color):
+    image = Image.new('RGB', (WIDTH, HEIGHT))
+    for x in range(WIDTH):
+        for y in range(HEIGHT):
+            image.putpixel((x,y), color)
+    
+    return image
+
+def drawCell(image, cell, color):
     x, y = cell[0], cell[1]
-    im.putpixel((x,y), color)
-    im.save('maze.png')
+    image.putpixel((x,y), color)
+    image.save('maze.png')
 
-
-def generateMaze(WIDTH, HEIGHT):
-    directionList = [[0, -1], [0, 1], [1, 0], [-1, 0]]
-
+def generateMaze():
     startCell = [1, 1]
     currentCell = startCell
 
@@ -37,56 +61,49 @@ def generateMaze(WIDTH, HEIGHT):
 
     WHITE, BLACK, BLUE = (255, 255, 255), (0, 0, 0), (0, 0, 255)
     
-    im = Image.new('RGB', (WIDTH, HEIGHT))
-    for x in range(WIDTH):
-        for y in range(HEIGHT):
-            im.putpixel((x,y), BLACK)
-
-    drawCell(im, currentCell, WHITE)
+    mazeImage = createImage(BLACK)
+    drawCell(mazeImage, currentCell, WHITE)
 
 
-    for i in range(5000000):
-        direction = random.choice(directionList)
-        nextCell = getNextCell(currentCell, direction)
+    while True:
+        possibleDirections = getPossibleDirections(currentCell, visitedCells)
 
-        if nextCell[0] <= 0 or nextCell[0] >= WIDTH:
-            continue
-        if nextCell[1] <= 0 or nextCell[1] >= HEIGHT:
-            continue
+        while possibleDirections:
+            direction = random.choice(possibleDirections)
+            nextCell = getNextCell(currentCell, direction)
 
-        if not nextCell in visitedCells:
-            wall = removeWall(currentCell, direction)
-            currentCell = nextCell
-            visitedCells.append(wall)
-            visitedCells.append(currentCell)
+            if not nextCell in visitedCells:
+                wall = getWall(currentCell, direction)
+                currentCell = nextCell
+                visitedCells.append(wall)
+                visitedCells.append(currentCell)
 
-            directionList = [[0, -1], [0, 1], [1, 0], [-1, 0]]
-            
+                # Update maze image everytime nextCell is found for a simple vizualization
+                time.sleep(0.1)
+                drawCell(mazeImage, wall, WHITE)
 
-            time.sleep(0.2)
-            drawCell(im, wall, WHITE)
-            
-            time.sleep(0.2)
-            drawCell(im, currentCell, WHITE)
-
-            continue
-
-
-        directionList.remove(direction)    
-        if not directionList:
-            drawCell(im, currentCell, BLUE)
-
-            index = visitedCells.index(currentCell) - 2
-            currentCell = visitedCells[index]
-            
-            drawCell(im, visitedCells[index - 1], BLUE)
-            drawCell(im, currentCell, BLUE)
-
-            directionList = [[0, -1], [0, 1], [1, 0], [-1, 0]]
+                time.sleep(0.1)
+                drawCell(mazeImage, currentCell, WHITE)
+                
+            break
         
+        if not possibleDirections:
+            index = visitedCells.index(currentCell) - 2 # index of previous cell for backtracking
+            currentCell = visitedCells[index]
+
+
+            # time.sleep(0.05)
+            # drawCell(mazeImage, visitedCells[index + 1], BLUE)
+            
+            # time.sleep(0.05)
+            # drawCell(mazeImage, currentCell, BLUE)
+
+        if currentCell == visitedCells[0]:
+            break
+
     # return visitedCells
 
-generateMaze(WIDTH, HEIGHT)
+generateMaze()
 
 
 # im = Image.new('1', (WIDTH, HEIGHT))
