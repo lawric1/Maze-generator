@@ -4,9 +4,11 @@ from operator import add
 
 from PIL import Image
 
-
 WIDTH, HEIGHT = 15,15
+
 DIRECTIONS = [[0, -1], [0, 1], [1, 0], [-1, 0]]
+
+WHITE, BLACK, BLUE = (255, 255, 255), (0, 0, 0), (0, 0, 255)
 
 
 def multiply(direction, n):
@@ -59,7 +61,6 @@ def generateMaze():
     visitedCells = []
     visitedCells.append(currentCell)
 
-    WHITE, BLACK, BLUE = (255, 255, 255), (0, 0, 0), (0, 0, 255)
     
     mazeImage = createImage(BLACK)
     drawCell(mazeImage, currentCell, WHITE)
@@ -94,7 +95,7 @@ def generateMaze():
 
             # time.sleep(0.05)
             # drawCell(mazeImage, visitedCells[index + 1], BLUE)
-            
+
             # time.sleep(0.05)
             # drawCell(mazeImage, currentCell, BLUE)
 
