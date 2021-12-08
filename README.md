@@ -1,7 +1,7 @@
 
 # Maze-generator
 
-Maze generator
+[Maze generator](https://www.wikiwand.com/en/Maze_generation_algorithm)
 
 
 ## Screenshots
