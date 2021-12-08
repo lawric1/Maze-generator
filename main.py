@@ -4,7 +4,7 @@ from operator import add
 
 from PIL import Image
 
-WIDTH, HEIGHT = 15,15
+WIDTH, HEIGHT = 25,25
 
 DIRECTIONS = [[0, -1], [0, 1], [1, 0], [-1, 0]]
 
